@@ -27,6 +27,8 @@ namespace Coverter
 		{
 			while (true) // Sonsuz döngüye giriyoruz
 			{
+				openFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
+				
 				// Dosya seçimi
 				if (openFileDialog1.ShowDialog() == DialogResult.OK)
 				{
@@ -37,11 +39,15 @@ namespace Coverter
 								 "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid|" +
 								 "All Files (*.*)|*.*";
 
+					
+
 					// Kaydetme diyalogunu aç
 					if (saveFileDialog1.ShowDialog() == DialogResult.OK)
 					{
 						string targetPath = saveFileDialog1.FileName;
 
+						saveFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
+													  
 						// Desteklenmeyen dönüşüm kontrolü
 						if (IsUnsupportedConversion(Path.GetExtension(sourcePath).ToLower(), Path.GetExtension(targetPath).ToLower()))
 						{
@@ -182,6 +188,12 @@ namespace Coverter
 				return true;
 			}
 
+			// Videodan resime dönüşüm kontrolü
+			if (videoExtensions.Contains(sourceExt) && imageExtensions.Contains(targetExt))
+			{
+				return true;
+			}
+
 			// Burada diğer desteklenmeyen dönüşümler için de kontrol ekleyebilirsiniz
 
 			return false;
@@ -217,6 +229,8 @@ namespace Coverter
 										 "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps|" +
 										 "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid|" +
 										 "All Files (*.*)|*.*";
+
+				saveFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
 
 				// Kaydetme diyalogunu aç
 				if (saveFileDialog1.ShowDialog() == DialogResult.OK)
