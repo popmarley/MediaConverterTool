@@ -23,6 +23,9 @@ namespace Coverter
 
 		private List<string> draggedFiles = new List<string>();
 
+		// Kullanıcının seçtiği formatları saklamak için bir sözlük
+		private Dictionary<string, string> selectedFormats = new Dictionary<string, string>();
+
 
 		public Main()
 		{
@@ -50,7 +53,7 @@ namespace Coverter
 						}
 					}
 				}
-			}			
+			}
 		}
 
 
@@ -138,7 +141,7 @@ namespace Coverter
 				{
 					MessageBox.Show("Dönüştürme sırasında hata oluştu: " + error);
 				}
-				
+
 			}
 			catch (Exception ex)
 			{
@@ -176,7 +179,7 @@ namespace Coverter
 				case ".svg":
 				case ".eps":
 					return $"-i \"{sourcePath}\" \"{targetPath}\""; // Resim dönüştürme için özelleştirilmiş komutlar eklenebilir
-				
+
 				//ses dosyaları
 				case ".mp3":
 				case ".wav":
@@ -242,8 +245,70 @@ namespace Coverter
 			if (files != null && files.Length != 0)
 			{
 				draggedFiles.AddRange(files); // Dosya yollarını listeye ekle
-				DisplayFilesInPanel(files);   // Panelde dosya isimlerini göster
+				DisplayFilesInPanelWithComboBox(files);   // Panelde dosya isimlerini ve ComboBox'ları göster
 			}
+		}
+
+		private void DisplayFilesInPanelWithComboBox(string[] files)
+		{
+			panel1.Controls.Clear(); // Paneldeki önceki kontrolleri temizle
+
+			int yPos = 10;
+			foreach (var file in files)
+			{
+				// Label oluşturma
+				Label label = new Label
+				{
+					Text = Path.GetFileName(file),
+					Location = new Point(10, yPos),
+					AutoSize = true
+				};
+
+				// ComboBox oluşturma ve doldurma
+				ComboBox comboBox = new ComboBox
+				{
+					Location = new Point(200, yPos),
+					Width = 100,
+					Name = "comboBox_" + file  // Her combobox için benzersiz bir isim atayın
+				};
+				comboBox.SelectedIndexChanged += new EventHandler(ComboBox_SelectedIndexChanged);
+				FillComboBoxWithExtensions(comboBox, file);
+
+				panel1.Controls.Add(label);
+				panel1.Controls.Add(comboBox);
+				yPos += label.Height + 5;
+			}
+		}
+
+		private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			ComboBox comboBox = sender as ComboBox;
+			if (comboBox != null)
+			{
+				string file = comboBox.Name.Replace("comboBox_", "");
+				string selectedFormat = comboBox.SelectedItem.ToString();
+				selectedFormats[file] = selectedFormat;  // Seçilen formatı sözlüğe kaydet
+			}
+		}
+
+		private void FillComboBoxWithExtensions(ComboBox comboBox, string file)
+		{
+			string extension = Path.GetExtension(file).ToLower();
+			if (videoExtensions.Contains(extension))
+			{
+				comboBox.Items.AddRange(new string[] { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" });
+			}
+
+			else if (imageExtensions.Contains(extension))
+			{
+				comboBox.Items.AddRange(new string[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif" });
+			}
+
+			else if (audioExtensions.Contains(extension))
+			{
+				comboBox.Items.AddRange(new string[] { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a" });
+			}
+
 		}
 
 
@@ -283,17 +348,40 @@ namespace Coverter
 
 		private void btnConvert_Click(object sender, EventArgs e)
 		{
-			foreach (var file in draggedFiles)
+			using (var folderDialog = new FolderBrowserDialog())
 			{
-				ProcessFile(file); // Her dosya için dönüştürme işlemi
-			}
+				if (folderDialog.ShowDialog() == DialogResult.OK)
+				{
+					string targetFolder = folderDialog.SelectedPath;
+					foreach (var file in draggedFiles)
+					{
+						string targetFormat = selectedFormats[file];
+						string originalFileName = Path.GetFileNameWithoutExtension(file);
+						string newFileName = originalFileName + "(pop converter)";
+						string targetPath = Path.Combine(targetFolder, newFileName + targetFormat);
 
-			MessageBox.Show("Dönüştürme işlemi tamamlandı.");
-			// Dosya listesini ve paneldeki görüntülemeyi temizle
-			draggedFiles.Clear();
-			panel1.Controls.Clear();
+						// Dosya ismi çakışması kontrolü
+						int counter = 1;
+						while (File.Exists(targetPath))
+						{
+							newFileName = originalFileName + "(pop converter)" + counter.ToString();
+							targetPath = Path.Combine(targetFolder, newFileName + targetFormat);
+							counter++;
+						}
+
+						// Dönüştürme işlemi
+						ConvertFile(file, targetPath);
+					}
+
+					MessageBox.Show("Dönüştürme işlemi tamamlandı.");
+					// Dosya listesini ve paneldeki görüntülemeyi temizle
+					draggedFiles.Clear();
+					panel1.Controls.Clear();
+				}
+			}
 		}
 	}
+	
 }
 
 

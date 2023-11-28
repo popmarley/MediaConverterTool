@@ -102,7 +102,7 @@
 			this.Controls.Add(this.btnSelectAndConvert);
 			this.Name = "Main";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Pop Converter | V1.4";
+			this.Text = "Pop Converter | V1.5";
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
 			this.ResumeLayout(false);
