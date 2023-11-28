@@ -31,6 +31,7 @@
 			this.btnSelectAndConvert = new System.Windows.Forms.Button();
 			this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+			this.panel1 = new System.Windows.Forms.Panel();
 			this.SuspendLayout();
 			// 
 			// btnSelectAndConvert
@@ -47,11 +48,19 @@
 			// 
 			this.openFileDialog1.FileName = "openFileDialog1";
 			// 
+			// panel1
+			// 
+			this.panel1.Location = new System.Drawing.Point(12, 82);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(331, 171);
+			this.panel1.TabIndex = 1;
+			// 
 			// Main
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.btnSelectAndConvert);
 			this.Name = "Main";
 			this.Text = "Pop Coverter | V1.0";
@@ -64,6 +73,7 @@
 		private System.Windows.Forms.Button btnSelectAndConvert;
 		private System.Windows.Forms.OpenFileDialog openFileDialog1;
 		private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+		private System.Windows.Forms.Panel panel1;
 	}
 }
 
