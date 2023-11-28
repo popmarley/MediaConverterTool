@@ -15,6 +15,12 @@ namespace Coverter
 	public partial class Main : Form
 	{
 		private string ffmpegPath = @"D:\ffmpeg-2023-11-27-git-0ea9e26636-full_build\bin\ffmpeg.exe"; // FFmpeg yolunu buraya girin veya bir ayar/config dosyasından alın
+
+		// Resim, video ve ses uzantıları için HashSet tanımlamaları
+		private HashSet<string> imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps" };
+		private HashSet<string> videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" };
+		private HashSet<string> audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid" };
+
 		public Main()
 		{
 			InitializeComponent();
@@ -25,31 +31,27 @@ namespace Coverter
 
 		private void btnSelectAndConvert_Click(object sender, EventArgs e)
 		{
+			openFileDialog1.FileName = ""; // Dosya seçim diyalogunda dosya adı alanını boş bırak
+
 			while (true) // Sonsuz döngüye giriyoruz
 			{
-				openFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
-				
 				// Dosya seçimi
 				if (openFileDialog1.ShowDialog() == DialogResult.OK)
 				{
 					string sourcePath = openFileDialog1.FileName;
+					string sourceExtension = Path.GetExtension(sourcePath).ToLower();
 
-					saveFileDialog1.Filter = "Video Files (*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v)|*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v|" +
-								 "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps|" +
-								 "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid|" +
-								 "All Files (*.*)|*.*";
-
-					
+					// Kaynak dosya türüne göre filtre ayarlama
+					SetSaveDialogFilter(sourceExtension);
 
 					// Kaydetme diyalogunu aç
 					if (saveFileDialog1.ShowDialog() == DialogResult.OK)
 					{
 						string targetPath = saveFileDialog1.FileName;
+						saveFileDialog1.FileName = ""; // Sonraki kullanım için dosya adı alanını sıfırla
 
-						saveFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
-													  
 						// Desteklenmeyen dönüşüm kontrolü
-						if (IsUnsupportedConversion(Path.GetExtension(sourcePath).ToLower(), Path.GetExtension(targetPath).ToLower()))
+						if (IsUnsupportedConversion(sourceExtension, Path.GetExtension(targetPath).ToLower()))
 						{
 							MessageBox.Show("Bu tür dönüşüm desteklenmiyor.");
 							continue; // Kullanıcıya tekrar deneme şansı ver
@@ -223,12 +225,32 @@ namespace Coverter
 
 		private void ProcessFile(string sourcePath)
 		{
+			string sourceExtension = Path.GetExtension(sourcePath).ToLower();
+
+			// Resim, video ve ses uzantıları için HashSet tanımlamaları
+			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps" };
+			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" };
+			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid" };
+
 			while (true)
 			{
-				saveFileDialog1.Filter = "Video Files (*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v)|*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v|" +
-										 "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps|" +
-										 "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid|" +
-										 "All Files (*.*)|*.*";
+				// Kaynak dosya türüne göre filtre ayarlama
+				if (videoExtensions.Contains(sourceExtension))
+				{
+					saveFileDialog1.Filter = "Video Files (*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v)|*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v";
+				}
+				else if (imageExtensions.Contains(sourceExtension))
+				{
+					saveFileDialog1.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps";
+				}
+				else if (audioExtensions.Contains(sourceExtension))
+				{
+					saveFileDialog1.Filter = "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid";
+				}
+				else
+				{
+					saveFileDialog1.Filter = "All Files (*.*)|*.*";
+				}
 
 				saveFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
 
@@ -255,6 +277,27 @@ namespace Coverter
 				}
 			}
 		}
+
+		private void SetSaveDialogFilter(string sourceExtension)
+		{
+			if (videoExtensions.Contains(sourceExtension))
+			{
+				saveFileDialog1.Filter = "Video Files (*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v)|*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v";
+			}
+			else if (imageExtensions.Contains(sourceExtension))
+			{
+				saveFileDialog1.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps";
+			}
+			else if (audioExtensions.Contains(sourceExtension))
+			{
+				saveFileDialog1.Filter = "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid";
+			}
+			else
+			{
+				saveFileDialog1.Filter = "All Files (*.*)|*.*";
+			}
+		}
+
 
 	}
 }
