@@ -115,6 +115,10 @@ namespace Coverter
 				return;
 			}
 
+			// İlerleme çubuğu ve durum etiketi bul
+			ProgressBar progressBar = (ProgressBar)panel1.Controls.Find("progressBar_" + sourcePath, true).FirstOrDefault();
+			Label statusLabel = (Label)panel1.Controls.Find("statusLabel_" + sourcePath, true).FirstOrDefault();
+
 			try
 			{
 				string arguments = BuildFfmpegArguments(sourcePath, targetPath);
@@ -133,21 +137,55 @@ namespace Coverter
 				};
 
 				process.Start();
-				string output = process.StandardOutput.ReadToEnd();
+
+				// İşlem çıktısını oku ve ilerleme çubuğunu güncelle
+				while (!process.StandardOutput.EndOfStream)
+				{
+					string line = process.StandardOutput.ReadLine();
+					// Burada 'line' string'inden ilerleme yüzdesini çıkarın ve progressBar.Value'yi güncelleyin
+					// Örnek: progressBar.Value = Çıkarılan İlerleme Yüzdesi
+
+					this.Invoke(new Action(() =>
+					{
+						// progressBar.Value = Çıkarılan İlerleme Yüzdesi;
+						// statusLabel.Text = "Dönüştürülüyor...";
+					}));
+				}
+
 				string error = process.StandardError.ReadToEnd();
 				process.WaitForExit();
 
 				if (process.ExitCode != 0)
 				{
 					MessageBox.Show("Dönüştürme sırasında hata oluştu: " + error);
+					this.Invoke(new Action(() =>
+					{
+						statusLabel.Text = "Hata";
+						statusLabel.ForeColor = Color.Red;
+					}));
+				}
+				else
+				{
+					this.Invoke(new Action(() =>
+					{
+						progressBar.Value = 100;
+						statusLabel.Text = "Tamamlandı";
+						statusLabel.ForeColor = Color.Green;
+					}));
 				}
 
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show("Bir hata oluştu: " + ex.Message);
+				this.Invoke(new Action(() =>
+				{
+					statusLabel.Text = "Hata";
+					statusLabel.ForeColor = Color.Red;
+				}));
 			}
 		}
+
 
 
 
@@ -245,11 +283,13 @@ namespace Coverter
 			if (files != null && files.Length != 0)
 			{
 				draggedFiles.AddRange(files); // Dosya yollarını listeye ekle
-				DisplayFilesInPanelWithComboBox(files);   // Panelde dosya isimlerini ve ComboBox'ları göster
+				DisplayFilesInPanelWithComboBoxAndProgressBar(files); // ProgressBar ve durum etiketi ile paneli güncelle
 			}
+
+			
 		}
 
-		private void DisplayFilesInPanelWithComboBox(string[] files)
+		private void DisplayFilesInPanelWithComboBoxAndProgressBar(string[] files)
 		{
 			panel1.Controls.Clear(); // Paneldeki önceki kontrolleri temizle
 
@@ -271,12 +311,36 @@ namespace Coverter
 					Width = 100,
 					Name = "comboBox_" + file  // Her combobox için benzersiz bir isim atayın
 				};
+
 				comboBox.SelectedIndexChanged += new EventHandler(ComboBox_SelectedIndexChanged);
 				FillComboBoxWithExtensions(comboBox, file);
 
 				panel1.Controls.Add(label);
 				panel1.Controls.Add(comboBox);
 				yPos += label.Height + 5;
+
+
+				// ProgressBar oluşturma
+				ProgressBar progressBar = new ProgressBar
+				{
+					Location = new Point(310, yPos),
+					Size = new Size(100, 20),
+					Name = "progressBar_" + file
+				};
+
+				// Durum etiketi oluşturma
+				Label statusLabel = new Label
+				{
+					Text = "Bekleniyor",
+					Location = new Point(420, yPos),
+					ForeColor = Color.Red,
+					AutoSize = true,
+					Name = "statusLabel_" + file
+				};
+
+				panel1.Controls.Add(progressBar);
+				panel1.Controls.Add(statusLabel);
+				yPos += label.Height + 10;
 			}
 		}
 

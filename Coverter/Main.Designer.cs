@@ -60,7 +60,7 @@
 			this.panel1.Controls.Add(this.label1);
 			this.panel1.Location = new System.Drawing.Point(12, 82);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(349, 171);
+			this.panel1.Size = new System.Drawing.Size(564, 171);
 			this.panel1.TabIndex = 1;
 			// 
 			// label1
@@ -95,14 +95,14 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(373, 371);
+			this.ClientSize = new System.Drawing.Size(628, 371);
 			this.Controls.Add(this.btnConvert);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.btnSelectAndConvert);
 			this.Name = "Main";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Pop Converter | V1.5";
+			this.Text = "Pop Converter | V1.6";
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
 			this.ResumeLayout(false);
