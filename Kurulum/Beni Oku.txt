@@ -1,0 +1,1 @@
+Rarı klasör olarak çıkartın ve bin klasörü içerisindeki ffmpeg.exe dosyasının yolunu converter sınıfında ki ffmegPath yoluna yapıştırın
