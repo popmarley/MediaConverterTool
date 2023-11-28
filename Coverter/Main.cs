@@ -33,47 +33,51 @@ namespace Coverter
 		{
 			openFileDialog1.FileName = ""; // Dosya seçim diyalogunda dosya adı alanını boş bırak
 
-			while (true) // Sonsuz döngüye giriyoruz
+			// Dosya seçimi
+			if (openFileDialog1.ShowDialog() == DialogResult.OK)
 			{
-				// Dosya seçimi
-				if (openFileDialog1.ShowDialog() == DialogResult.OK)
+				using (var folderDialog = new FolderBrowserDialog())
 				{
-					string sourcePath = openFileDialog1.FileName;
-					string sourceExtension = Path.GetExtension(sourcePath).ToLower();
-
-					// Kaynak dosya türüne göre filtre ayarlama
-					SetSaveDialogFilter(sourceExtension);
-
-					// Kaydetme diyalogunu aç
-					if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+					if (folderDialog.ShowDialog() == DialogResult.OK)
 					{
-						string targetPath = saveFileDialog1.FileName;
-						saveFileDialog1.FileName = ""; // Sonraki kullanım için dosya adı alanını sıfırla
-
-						// Desteklenmeyen dönüşüm kontrolü
-						if (IsUnsupportedConversion(sourceExtension, Path.GetExtension(targetPath).ToLower()))
+						foreach (string sourcePath in openFileDialog1.FileNames)
 						{
-							MessageBox.Show("Bu tür dönüşüm desteklenmiyor.");
-							continue; // Kullanıcıya tekrar deneme şansı ver
+							string targetFolder = folderDialog.SelectedPath;
+							ProcessFile(sourcePath);
 						}
+					}
+				}
+			}			
+		}
 
-						// Desteklenen dönüşüm varsa, dönüşüm işlemini başlat ve döngüden çık
-						ConvertFile(sourcePath, targetPath);
-						break;
-					}
-					else
-					{
-						// Kullanıcı 'Kaydet' diyalogunda iptal butonuna basarsa döngüden çık
-						break;
-					}
+
+		private void ProcessFile(string sourcePath)
+		{
+			string sourceExtension = Path.GetExtension(sourcePath).ToLower();
+			SetSaveDialogFilter(sourceExtension);
+
+			saveFileDialog1.FileName = Path.GetFileNameWithoutExtension(sourcePath); // Önerilen dosya adı
+
+			// Kaydetme diyalogunu aç
+			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				string targetPath = saveFileDialog1.FileName;
+
+				if (IsUnsupportedConversion(sourceExtension, Path.GetExtension(targetPath).ToLower()))
+				{
+					MessageBox.Show("Bu tür dönüşüm desteklenmiyor.");
 				}
 				else
 				{
-					// Kullanıcı 'Aç' diyalogunda iptal butonuna basarsa döngüden çık
-					break;
+					// Desteklenen dönüşüm varsa, dönüşüm işlemini başlat
+					ConvertFile(sourcePath, targetPath);
 				}
 			}
+
 		}
+
+		
+
 
 		private void ConvertFile(string sourcePath, string targetPath)
 		{
@@ -218,44 +222,14 @@ namespace Coverter
 			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 			if (files != null && files.Length != 0)
 			{
-				string sourcePath = files[0]; // İlk dosyanın yolunu al
-				ProcessFile(sourcePath);
-			}
-		}
-
-		private void ProcessFile(string sourcePath)
-		{
-			string sourceExtension = Path.GetExtension(sourcePath).ToLower();
-
-			while (true)
-			{
-				SetSaveDialogFilter(sourceExtension);
-
-				saveFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
-
-				// Kaydetme diyalogunu aç
-				if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+				foreach (string sourcePath in files)
 				{
-					string targetPath = saveFileDialog1.FileName;
-
-					// Desteklenmeyen dönüşüm kontrolü
-					if (IsUnsupportedConversion(Path.GetExtension(sourcePath).ToLower(), Path.GetExtension(targetPath).ToLower()))
-					{
-						MessageBox.Show("Bu tür dönüşüm desteklenmiyor.");
-						continue; // Kullanıcıya tekrar deneme şansı ver
-					}
-
-					// Desteklenen dönüşüm varsa, dönüşüm işlemini başlat ve döngüden çık
-					ConvertFile(sourcePath, targetPath);
-					break;
-				}
-				else
-				{
-					// Kullanıcı kaydetme diyalogunda iptal butonuna basarsa döngüden çık
-					break;
+					ProcessFile(sourcePath); // Tek parametreli ProcessFile metodunu çağır
 				}
 			}
 		}
+
+
 
 		private void SetSaveDialogFilter(string sourceExtension)
 		{
