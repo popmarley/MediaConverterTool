@@ -21,6 +21,9 @@ namespace Coverter
 		private HashSet<string> videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" };
 		private HashSet<string> audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid" };
 
+		private List<string> draggedFiles = new List<string>();
+
+
 		public Main()
 		{
 			InitializeComponent();
@@ -76,8 +79,25 @@ namespace Coverter
 
 		}
 
-		
 
+		private void DisplayFilesInPanel(string[] files)
+		{
+			panel1.Controls.Clear(); // Paneldeki önceki kontrolleri temizle
+
+			int yPos = 10;
+			foreach (var file in files)
+			{
+				Label label = new Label
+				{
+					Text = Path.GetFileName(file),
+					Location = new Point(10, yPos),
+					AutoSize = true
+				};
+
+				panel1.Controls.Add(label);
+				yPos += label.Height + 5; // Her bir etiket için y pozisyonunu güncelle
+			}
+		}
 
 		private void ConvertFile(string sourcePath, string targetPath)
 		{
@@ -118,10 +138,7 @@ namespace Coverter
 				{
 					MessageBox.Show("Dönüştürme sırasında hata oluştu: " + error);
 				}
-				else
-				{
-					MessageBox.Show("Dönüştürme başarıyla tamamlandı.");
-				}
+				
 			}
 			catch (Exception ex)
 			{
@@ -219,15 +236,16 @@ namespace Coverter
 
 		private void Main_DragDrop(object sender, DragEventArgs e)
 		{
+			draggedFiles.Clear(); // Listeyi temizle
 			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
 			if (files != null && files.Length != 0)
 			{
-				foreach (string sourcePath in files)
-				{
-					ProcessFile(sourcePath); // Tek parametreli ProcessFile metodunu çağır
-				}
+				draggedFiles.AddRange(files); // Dosya yollarını listeye ekle
+				DisplayFilesInPanel(files);   // Panelde dosya isimlerini göster
 			}
 		}
+
 
 
 
@@ -263,7 +281,18 @@ namespace Coverter
 			}
 		}
 
+		private void btnConvert_Click(object sender, EventArgs e)
+		{
+			foreach (var file in draggedFiles)
+			{
+				ProcessFile(file); // Her dosya için dönüştürme işlemi
+			}
 
+			MessageBox.Show("Dönüştürme işlemi tamamlandı.");
+			// Dosya listesini ve paneldeki görüntülemeyi temizle
+			draggedFiles.Clear();
+			panel1.Controls.Clear();
+		}
 	}
 }
 
