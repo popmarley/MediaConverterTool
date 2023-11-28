@@ -227,30 +227,9 @@ namespace Coverter
 		{
 			string sourceExtension = Path.GetExtension(sourcePath).ToLower();
 
-			// Resim, video ve ses uzantıları için HashSet tanımlamaları
-			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps" };
-			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" };
-			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid" };
-
 			while (true)
 			{
-				// Kaynak dosya türüne göre filtre ayarlama
-				if (videoExtensions.Contains(sourceExtension))
-				{
-					saveFileDialog1.Filter = "Video Files (*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v)|*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v";
-				}
-				else if (imageExtensions.Contains(sourceExtension))
-				{
-					saveFileDialog1.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps";
-				}
-				else if (audioExtensions.Contains(sourceExtension))
-				{
-					saveFileDialog1.Filter = "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid";
-				}
-				else
-				{
-					saveFileDialog1.Filter = "All Files (*.*)|*.*";
-				}
+				SetSaveDialogFilter(sourceExtension);
 
 				saveFileDialog1.FileName = ""; // Dosya adı alanını boş bırak
 
@@ -282,15 +261,27 @@ namespace Coverter
 		{
 			if (videoExtensions.Contains(sourceExtension))
 			{
-				saveFileDialog1.Filter = "Video Files (*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v)|*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.flv;*.webm;*.3gp;*.m4v";
+				saveFileDialog1.Filter = "MP4 File (*.mp4)|*.mp4|" +
+										 "AVI File (*.avi)|*.avi|" +
+										 "MKV File (*.mkv)|*.mkv|" +
+										 // Diğer video formatları...
+										 "All Video Files|*.mp4;*.avi;*.mkv;...";
 			}
 			else if (imageExtensions.Contains(sourceExtension))
 			{
-				saveFileDialog1.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.tif;*.svg;*.eps";
+				saveFileDialog1.Filter = "JPEG Image (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
+										 "PNG Image (*.png)|*.png|" +
+										 "GIF Image (*.gif)|*.gif|" +
+										 // Diğer resim formatları...
+										 "All Image Files|*.jpg;*.jpeg;*.png;*.gif;...";
 			}
 			else if (audioExtensions.Contains(sourceExtension))
 			{
-				saveFileDialog1.Filter = "Audio Files (*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid)|*.mp3;*.wav;*.flac;*.aac;*.ogg;*.wma;*.m4a;*.midi;*.mid";
+				saveFileDialog1.Filter = "MP3 Audio (*.mp3)|*.mp3|" +
+										 "WAV Audio (*.wav)|*.wav|" +
+										 "FLAC Audio (*.flac)|*.flac|" +
+										 // Diğer ses formatları...
+										 "All Audio Files|*.mp3;*.wav;*.flac;...";
 			}
 			else
 			{
