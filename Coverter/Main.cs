@@ -412,11 +412,29 @@ namespace Coverter
 
 		private void btnConvert_Click(object sender, EventArgs e)
 		{
+			// Eğer draggedFiles listesi boşsa, uyarı mesajı göster
+			if (draggedFiles.Count == 0)
+			{
+				MessageBox.Show("Lütfen önce dosyaları yükleyin.", "Veri Yüklenmedi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return; // Metodu sonlandır
+			}
+
+			// Uzantı seçimini kontrol et
+			foreach (var file in draggedFiles)
+			{
+				if (!selectedFormats.ContainsKey(file) || string.IsNullOrWhiteSpace(selectedFormats[file]))
+				{
+					MessageBox.Show("Lütfen dönüştürlecek uzantıyı seçin.", "Uzantı Seçimi Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					return; // Döngüden çık ve metodun geri kalanını çalıştırma
+				}
+			}
+
 			using (var folderDialog = new FolderBrowserDialog())
 			{
 				if (folderDialog.ShowDialog() == DialogResult.OK)
 				{
 					string targetFolder = folderDialog.SelectedPath;
+
 					foreach (var file in draggedFiles)
 					{
 						string targetFormat = selectedFormats[file];
@@ -438,7 +456,6 @@ namespace Coverter
 					}
 
 					MessageBox.Show("Dönüştürme işlemi tamamlandı.");
-					
 				}
 			}
 		}
