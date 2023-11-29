@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
 			this.btnSelectAndConvert = new System.Windows.Forms.Button();
 			this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
@@ -35,6 +36,7 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.btnConvert = new System.Windows.Forms.Button();
+			this.btnTemizle = new System.Windows.Forms.Button();
 			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -55,7 +57,7 @@
 			// 
 			// panel1
 			// 
-			this.panel1.BackColor = System.Drawing.SystemColors.AppWorkspace;
+			this.panel1.BackColor = System.Drawing.SystemColors.Control;
 			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.panel1.Controls.Add(this.label1);
 			this.panel1.Location = new System.Drawing.Point(12, 82);
@@ -83,7 +85,7 @@
 			// 
 			// btnConvert
 			// 
-			this.btnConvert.Location = new System.Drawing.Point(159, 259);
+			this.btnConvert.Location = new System.Drawing.Point(217, 259);
 			this.btnConvert.Name = "btnConvert";
 			this.btnConvert.Size = new System.Drawing.Size(75, 23);
 			this.btnConvert.TabIndex = 2;
@@ -91,15 +93,27 @@
 			this.btnConvert.UseVisualStyleBackColor = true;
 			this.btnConvert.Click += new System.EventHandler(this.btnConvert_Click);
 			// 
+			// btnTemizle
+			// 
+			this.btnTemizle.Location = new System.Drawing.Point(316, 259);
+			this.btnTemizle.Name = "btnTemizle";
+			this.btnTemizle.Size = new System.Drawing.Size(75, 39);
+			this.btnTemizle.TabIndex = 3;
+			this.btnTemizle.Text = "Listeyi \r\nTemizle";
+			this.btnTemizle.UseVisualStyleBackColor = true;
+			this.btnTemizle.Click += new System.EventHandler(this.btnTemizle_Click);
+			// 
 			// Main
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(628, 371);
+			this.Controls.Add(this.btnTemizle);
 			this.Controls.Add(this.btnConvert);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.btnSelectAndConvert);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "Main";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Pop Converter | V1.6";
@@ -119,6 +133,7 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Button btnConvert;
+		private System.Windows.Forms.Button btnTemizle;
 	}
 }
 

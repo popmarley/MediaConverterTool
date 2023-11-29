@@ -438,11 +438,16 @@ namespace Coverter
 					}
 
 					MessageBox.Show("Dönüştürme işlemi tamamlandı.");
-					// Dosya listesini ve paneldeki görüntülemeyi temizle
-					draggedFiles.Clear();
-					panel1.Controls.Clear();
+					
 				}
 			}
+		}
+
+		private void btnTemizle_Click(object sender, EventArgs e)
+		{
+			// Dosya listesini ve paneldeki görüntülemeyi temizle
+			draggedFiles.Clear();
+			panel1.Controls.Clear();
 		}
 	}
 	
