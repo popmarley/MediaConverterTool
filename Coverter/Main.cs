@@ -301,7 +301,8 @@ namespace Coverter
 				{
 					Text = Path.GetFileName(file),
 					Location = new Point(10, yPos),
-					AutoSize = true
+					AutoSize = true,
+					 Tag = file
 				};
 
 				// ComboBox oluşturma ve doldurma
@@ -309,7 +310,8 @@ namespace Coverter
 				{
 					Location = new Point(200, yPos),
 					Width = 100,
-					Name = "comboBox_" + file  // Her combobox için benzersiz bir isim atayın
+					Name = "comboBox_" + file,  // Her combobox için benzersiz bir isim atayın
+					Tag = file
 				};
 
 				comboBox.SelectedIndexChanged += new EventHandler(ComboBox_SelectedIndexChanged);
@@ -325,7 +327,8 @@ namespace Coverter
 				{
 					Location = new Point(310, yPos),
 					Size = new Size(100, 20),
-					Name = "progressBar_" + file
+					Name = "progressBar_" + file,
+					Tag = file
 				};
 
 				// Durum etiketi oluşturma
@@ -335,14 +338,75 @@ namespace Coverter
 					Location = new Point(420, yPos),
 					ForeColor = Color.Red,
 					AutoSize = true,
-					Name = "statusLabel_" + file
+					Name = "statusLabel_" + file,
+					Tag = file
 				};
 
 				panel1.Controls.Add(progressBar);
 				panel1.Controls.Add(statusLabel);
 				yPos += label.Height + 10;
+
+
+				// Kaldır butonu oluşturma
+				Button removeButton = new Button
+				{
+					Text = "Kaldır",
+					Location = new Point(500, yPos),
+					Size = new Size(75, 23),
+					Tag = file // Tag özelliğini kullanarak dosya yolunu butona ekleyin
+				};
+				removeButton.Click += new EventHandler(RemoveButton_Click); // Tıklama olayını işleyiciye bağlayın
+
+				panel1.Controls.Add(removeButton);
+				yPos += label.Height + 10;
 			}
 		}
+
+		private void RemoveButton_Click(object sender, EventArgs e)
+		{
+			Button button = sender as Button;
+			if (button != null && button.Tag is string file)
+			{
+				var controlsToRemove = panel1.Controls.Cast<Control>()
+					.Where(c => c.Tag is string tag && tag == file)
+					.ToList();
+
+				foreach (var control in controlsToRemove)
+				{
+					panel1.Controls.Remove(control);
+					control.Dispose();
+				}
+
+				draggedFiles.Remove(file);
+
+				RealignPanelItems();
+			}
+		}
+
+		private void RealignPanelItems()
+		{
+			int yPos = 10;
+			foreach (Control control in panel1.Controls)
+			{
+				// Sadece belirli türdeki kontrol elemanlarını düzenle (örneğin Label, ComboBox, ProgressBar, Button)
+				if (control is Label || control is ComboBox || control is ProgressBar || control is Button)
+				{
+					control.Location = new Point(control.Location.X, yPos);
+
+					// Label ve ComboBox için yükseklik ayarı yap
+					if (control is Label || control is ComboBox)
+					{
+						yPos += control.Height + 5;
+					}
+					// ProgressBar ve Button için yükseklik ayarı yap
+					else if (control is ProgressBar || control is Button)
+					{
+						yPos += control.Height + 10;
+					}
+				}
+			}
+		}
+
 
 		private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{

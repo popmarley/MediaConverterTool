@@ -62,7 +62,7 @@
 			this.panel1.Controls.Add(this.label1);
 			this.panel1.Location = new System.Drawing.Point(12, 82);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(564, 171);
+			this.panel1.Size = new System.Drawing.Size(774, 171);
 			this.panel1.TabIndex = 1;
 			// 
 			// label1
@@ -107,7 +107,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(628, 371);
+			this.ClientSize = new System.Drawing.Size(940, 371);
 			this.Controls.Add(this.btnTemizle);
 			this.Controls.Add(this.btnConvert);
 			this.Controls.Add(this.label2);
