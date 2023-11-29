@@ -291,9 +291,13 @@ namespace Coverter
 
 		private void DisplayFilesInPanelWithComboBoxAndProgressBar(string[] files)
 		{
-			panel1.Controls.Clear(); // Paneldeki önceki kontrolleri temizle
 
-			int yPos = 10;
+
+			// Mevcut öğelerin en altındaki y pozisyonunu bul
+			int yPos = panel1.Controls.Cast<Control>().Any()
+					   ? panel1.Controls.Cast<Control>().Max(c => c.Bottom) + 10
+					   : 10;
+
 			foreach (var file in files)
 			{
 				// Label oluşturma
@@ -302,7 +306,7 @@ namespace Coverter
 					Text = Path.GetFileName(file),
 					Location = new Point(10, yPos),
 					AutoSize = true,
-					 Tag = file
+					Tag = file
 				};
 
 				// ComboBox oluşturma ve doldurma
@@ -310,17 +314,15 @@ namespace Coverter
 				{
 					Location = new Point(200, yPos),
 					Width = 100,
-					Name = "comboBox_" + file,  // Her combobox için benzersiz bir isim atayın
+					Name = "comboBox_" + file, // Her combobox için benzersiz bir isim atayın
 					Tag = file
 				};
-
 				comboBox.SelectedIndexChanged += new EventHandler(ComboBox_SelectedIndexChanged);
 				FillComboBoxWithExtensions(comboBox, file);
 
 				panel1.Controls.Add(label);
 				panel1.Controls.Add(comboBox);
 				yPos += label.Height + 5;
-
 
 				// ProgressBar oluşturma
 				ProgressBar progressBar = new ProgressBar
@@ -344,8 +346,7 @@ namespace Coverter
 
 				panel1.Controls.Add(progressBar);
 				panel1.Controls.Add(statusLabel);
-				yPos += label.Height + 10;
-
+				yPos += progressBar.Height + 5;
 
 				// Kaldır butonu oluşturma
 				Button removeButton = new Button
@@ -358,7 +359,7 @@ namespace Coverter
 				removeButton.Click += new EventHandler(RemoveButton_Click); // Tıklama olayını işleyiciye bağlayın
 
 				panel1.Controls.Add(removeButton);
-				yPos += label.Height + 10;
+				yPos += removeButton.Height + 10;
 			}
 		}
 
