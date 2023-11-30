@@ -277,17 +277,34 @@ namespace Coverter
 
 		private void Main_DragDrop(object sender, DragEventArgs e)
 		{
-			draggedFiles.Clear(); // Listeyi temizle
 			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
 			if (files != null && files.Length != 0)
 			{
-				draggedFiles.AddRange(files); // Dosya yollarını listeye ekle
-				DisplayFilesInPanelWithComboBoxAndProgressBar(files); // ProgressBar ve durum etiketi ile paneli güncelle
-			}
+				foreach (var file in files)
+				{
+					// Dosyanın adını al
+					string fileName = Path.GetFileName(file);
 
-			
+					// Paneldeki mevcut dosyaları kontrol et
+					if (panel1.Controls.Cast<Control>().Any(c => c is Label && c.Text == fileName))
+					{
+						MessageBox.Show("Bu dosya zaten eklenmiş: " + fileName, "Dosya Çakışması", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+						continue; // Aynı isimdeki dosyayı atla ve diğer dosyalara devam et
+					}
+
+					// Dosyayı listeye ekle ve paneli güncelle
+					draggedFiles.Add(file);
+					DisplayFilesInPanelWithComboBoxAndProgressBar(new string[] { file });
+				}
+
+				if (draggedFiles.Count > 0)
+				{
+					label3.Visible = false; // Ögeler sürüklendiğinde label3'ü gizle
+				}
+			}
 		}
+
 
 		private void DisplayFilesInPanelWithComboBoxAndProgressBar(string[] files)
 		{
@@ -381,6 +398,7 @@ namespace Coverter
 				draggedFiles.Remove(file);
 
 				RealignPanelItems();
+				label3.Visible = panel1.Controls.Count == 0;
 			}
 		}
 
@@ -530,6 +548,8 @@ namespace Coverter
 			// Dosya listesini ve paneldeki görüntülemeyi temizle
 			draggedFiles.Clear();
 			panel1.Controls.Clear();
+			label3.Visible = true; // Tüm ögeler temizlendiğinde label3'ü göster
+
 		}
 	}
 	
