@@ -26,6 +26,7 @@ namespace Coverter
 		// Kullanıcının seçtiği formatları saklamak için bir sözlük
 		private Dictionary<string, string> selectedFormats = new Dictionary<string, string>();
 
+		private int currentFileCount = 0;
 
 		public Main()
 		{
@@ -308,20 +309,28 @@ namespace Coverter
 
 		private void DisplayFilesInPanelWithComboBoxAndProgressBar(string[] files)
 		{
-
-
-			// Mevcut öğelerin en altındaki y pozisyonunu bul
+			currentFileCount++;
 			int yPos = panel1.Controls.Cast<Control>().Any()
 					   ? panel1.Controls.Cast<Control>().Max(c => c.Bottom) + 10
 					   : 10;
 
 			foreach (var file in files)
 			{
+				// Sıralama numarası label'ını ekle
+				Label orderLabel = new Label
+				{
+					Text = currentFileCount.ToString(),
+					Location = new Point(5, yPos),
+					AutoSize = true,
+					Tag = file
+				};
+				panel1.Controls.Add(orderLabel);
+
 				// Label oluşturma
 				Label label = new Label
 				{
 					Text = Path.GetFileName(file),
-					Location = new Point(10, yPos),
+					Location = new Point(30, yPos), // X konumunu düzelt
 					AutoSize = true,
 					Tag = file
 				};
@@ -329,9 +338,9 @@ namespace Coverter
 				// ComboBox oluşturma ve doldurma
 				ComboBox comboBox = new ComboBox
 				{
-					Location = new Point(200, yPos),
+					Location = new Point(200, yPos), // Yerini koru
 					Width = 100,
-					Name = "comboBox_" + file, // Her combobox için benzersiz bir isim atayın
+					Name = "comboBox_" + file,
 					Tag = file
 				};
 				comboBox.SelectedIndexChanged += new EventHandler(ComboBox_SelectedIndexChanged);
@@ -339,12 +348,11 @@ namespace Coverter
 
 				panel1.Controls.Add(label);
 				panel1.Controls.Add(comboBox);
-				yPos += label.Height + 5;
 
 				// ProgressBar oluşturma
 				ProgressBar progressBar = new ProgressBar
 				{
-					Location = new Point(310, yPos),
+					Location = new Point(310, yPos), // Y konumunu düzelt
 					Size = new Size(100, 20),
 					Name = "progressBar_" + file,
 					Tag = file
@@ -354,7 +362,7 @@ namespace Coverter
 				Label statusLabel = new Label
 				{
 					Text = "Bekleniyor",
-					Location = new Point(420, yPos),
+					Location = new Point(420, yPos), // Y konumunu düzelt
 					ForeColor = Color.Red,
 					AutoSize = true,
 					Name = "statusLabel_" + file,
@@ -363,22 +371,23 @@ namespace Coverter
 
 				panel1.Controls.Add(progressBar);
 				panel1.Controls.Add(statusLabel);
-				yPos += progressBar.Height + 5;
 
 				// Kaldır butonu oluşturma
 				Button removeButton = new Button
 				{
 					Text = "Kaldır",
-					Location = new Point(500, yPos),
+					Location = new Point(500, yPos), // Yerini koru
 					Size = new Size(75, 23),
-					Tag = file // Tag özelliğini kullanarak dosya yolunu butona ekleyin
+					Tag = file
 				};
-				removeButton.Click += new EventHandler(RemoveButton_Click); // Tıklama olayını işleyiciye bağlayın
+				removeButton.Click += new EventHandler(RemoveButton_Click);
 
 				panel1.Controls.Add(removeButton);
-				yPos += removeButton.Height + 10;
+				yPos += removeButton.Height + 10; // Y konumunu güncelle
 			}
 		}
+
+
 
 		private void RemoveButton_Click(object sender, EventArgs e)
 		{
@@ -552,7 +561,7 @@ namespace Coverter
 
 		}
 	}
-	
+
 }
 
 
