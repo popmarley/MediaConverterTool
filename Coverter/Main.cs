@@ -36,72 +36,6 @@ namespace Coverter
 			this.DragDrop += new DragEventHandler(this.Main_DragDrop);
 		}
 
-		private void btnSelectAndConvert_Click(object sender, EventArgs e)
-		{
-			openFileDialog1.FileName = ""; // Dosya seçim diyalogunda dosya adı alanını boş bırak
-
-			// Dosya seçimi
-			if (openFileDialog1.ShowDialog() == DialogResult.OK)
-			{
-				using (var folderDialog = new FolderBrowserDialog())
-				{
-					if (folderDialog.ShowDialog() == DialogResult.OK)
-					{
-						foreach (string sourcePath in openFileDialog1.FileNames)
-						{
-							string targetFolder = folderDialog.SelectedPath;
-							ProcessFile(sourcePath);
-						}
-					}
-				}
-			}
-		}
-
-
-		private void ProcessFile(string sourcePath)
-		{
-			string sourceExtension = Path.GetExtension(sourcePath).ToLower();
-			SetSaveDialogFilter(sourceExtension);
-
-			saveFileDialog1.FileName = Path.GetFileNameWithoutExtension(sourcePath); // Önerilen dosya adı
-
-			// Kaydetme diyalogunu aç
-			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-			{
-				string targetPath = saveFileDialog1.FileName;
-
-				if (IsUnsupportedConversion(sourceExtension, Path.GetExtension(targetPath).ToLower()))
-				{
-					MessageBox.Show("Bu tür dönüşüm desteklenmiyor.");
-				}
-				else
-				{
-					// Desteklenen dönüşüm varsa, dönüşüm işlemini başlat
-					ConvertFile(sourcePath, targetPath);
-				}
-			}
-
-		}
-
-
-		private void DisplayFilesInPanel(string[] files)
-		{
-			panel1.Controls.Clear(); // Paneldeki önceki kontrolleri temizle
-
-			int yPos = 10;
-			foreach (var file in files)
-			{
-				Label label = new Label
-				{
-					Text = Path.GetFileName(file),
-					Location = new Point(10, yPos),
-					AutoSize = true
-				};
-
-				panel1.Controls.Add(label);
-				yPos += label.Height + 5; // Her bir etiket için y pozisyonunu güncelle
-			}
-		}
 
 		private void ConvertFile(string sourcePath, string targetPath)
 		{
@@ -193,59 +127,41 @@ namespace Coverter
 		private string BuildFfmpegArguments(string sourcePath, string targetPath)
 		{
 			string extension = Path.GetExtension(sourcePath).ToLower();
-			switch (extension)
+
+			// Video, Resim ve Ses dosyaları için genel uzantılar
+			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v", ".web", ".dat" };
+			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps", ".web", ".unknown", ".dat" };
+			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid", ".unknown", ".dat" };
+
+			if (videoExtensions.Contains(extension))
 			{
-				//video dosyaları
-				case ".mp4":
-				case ".avi":
-				case ".mkv":
-				case ".mov":
-				case ".wmv":
-				case ".flv":
-				case ".webm":
-				case ".3gp":
-				case ".m4v":
-					return $"-i \"{sourcePath}\" \"{targetPath}\""; // Video dönüştürme için özelleştirilmiş komutlar eklenebilir
-
-				//resim dosyaları
-				case ".jpg":
-				case ".jpeg":
-				case ".png":
-				case ".gif":
-				case ".bmp":
-				case ".tiff":
-				case ".tif":
-				case ".svg":
-				case ".eps":
-					return $"-i \"{sourcePath}\" \"{targetPath}\""; // Resim dönüştürme için özelleştirilmiş komutlar eklenebilir
-
-				//ses dosyaları
-				case ".mp3":
-				case ".wav":
-				case ".flac":
-				case ".aac":
-				case ".ogg":
-				case ".wma":
-				case ".m4a":
-				case ".midi":
-				case ".mid":
-					return $"-i \"{sourcePath}\" \"{targetPath}\"";
-
-				default:
-					throw new InvalidOperationException("Desteklenmeyen dosya türü.");
+				return $"-i \"{sourcePath}\" \"{targetPath}\""; // Video dönüştürme
+			}
+			else if (imageExtensions.Contains(extension))
+			{
+				return $"-i \"{sourcePath}\" \"{targetPath}\""; // Resim dönüştürme
+			}
+			else if (audioExtensions.Contains(extension))
+			{
+				return $"-i \"{sourcePath}\" \"{targetPath}\""; // Ses dönüştürme
+			}
+			else
+			{
+				throw new InvalidOperationException("Desteklenmeyen dosya türü.");
 			}
 		}
+
 
 		private bool IsUnsupportedConversion(string sourceExt, string targetExt)
 		{
 			// Resim uzantıları
-			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps" };
+			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps", ".webm", ".unknown" };
 
 			// Video uzantıları
-			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" };
+			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v", ".unknown" };
 
 			// Ses uzantıları
-			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid" };
+			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid", ".unknown" };
 
 			// Resimden videoya veya sese dönüşüm kontrolü
 			if (imageExtensions.Contains(sourceExt) && (videoExtensions.Contains(targetExt) || audioExtensions.Contains(targetExt)))
@@ -329,7 +245,7 @@ namespace Coverter
 				// Label oluşturma
 				Label label = new Label
 				{
-					Text = Path.GetFileName(file),
+					Text = Path.GetFileName(file).Length > 16 ? Path.GetFileName(file).Substring(0, 16) + "..." : Path.GetFileName(file),
 					Location = new Point(30, yPos), // X konumunu düzelt
 					AutoSize = true,
 					Tag = file
@@ -452,7 +368,7 @@ namespace Coverter
 			string extension = Path.GetExtension(file).ToLower();
 			if (videoExtensions.Contains(extension))
 			{
-				comboBox.Items.AddRange(new string[] { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" });
+				comboBox.Items.AddRange(new string[] { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v", ".mp3" });
 			}
 
 			else if (imageExtensions.Contains(extension))
@@ -462,7 +378,7 @@ namespace Coverter
 
 			else if (audioExtensions.Contains(extension))
 			{
-				comboBox.Items.AddRange(new string[] { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a" });
+				comboBox.Items.AddRange(new string[] { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".mp4" });
 			}
 
 		}
@@ -531,14 +447,14 @@ namespace Coverter
 					{
 						string targetFormat = selectedFormats[file];
 						string originalFileName = Path.GetFileNameWithoutExtension(file);
-						string newFileName = originalFileName + "(pop converter)";
+						string newFileName = originalFileName + "";
 						string targetPath = Path.Combine(targetFolder, newFileName + targetFormat);
 
 						// Dosya ismi çakışması kontrolü
 						int counter = 1;
 						while (File.Exists(targetPath))
 						{
-							newFileName = originalFileName + "(pop converter)" + counter.ToString();
+							newFileName = originalFileName + "" + counter.ToString();
 							targetPath = Path.Combine(targetFolder, newFileName + targetFormat);
 							counter++;
 						}
