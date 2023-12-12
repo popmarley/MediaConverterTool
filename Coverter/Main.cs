@@ -18,8 +18,8 @@ namespace Coverter
 
 		// Resim, video ve ses uzantıları için HashSet tanımlamaları
 		private HashSet<string> imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps" };
-		private HashSet<string> videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v" };
-		private HashSet<string> audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid" };
+		private HashSet<string> videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v",".unknown",".dat" };
+		private HashSet<string> audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid", ".unknown", ".dat" };
 
 		private List<string> draggedFiles = new List<string>();
 
@@ -34,6 +34,9 @@ namespace Coverter
 			this.AllowDrop = true;
 			this.DragEnter += new DragEventHandler(this.Main_DragEnter);
 			this.DragDrop += new DragEventHandler(this.Main_DragDrop);
+			// panel1 için MouseDoubleClick olayını tanımla
+			this.panel1.MouseDoubleClick += new MouseEventHandler(this.Panel1_MouseDoubleClick);
+
 		}
 
 
@@ -129,7 +132,7 @@ namespace Coverter
 			string extension = Path.GetExtension(sourcePath).ToLower();
 
 			// Video, Resim ve Ses dosyaları için genel uzantılar
-			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v", ".web", ".dat" };
+			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v", ".web", ".unknown", ".dat" };
 			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps", ".web", ".unknown", ".dat" };
 			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid", ".unknown", ".dat" };
 
@@ -155,13 +158,13 @@ namespace Coverter
 		private bool IsUnsupportedConversion(string sourceExt, string targetExt)
 		{
 			// Resim uzantıları
-			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps", ".webm", ".unknown" };
+			var imageExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".eps", ".webm", ".unknown", ".dat" };
 
 			// Video uzantıları
-			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v", ".unknown" };
+			var videoExtensions = new HashSet<string> { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".m4v", ".unknown", ".dat" };
 
 			// Ses uzantıları
-			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid", ".unknown" };
+			var audioExtensions = new HashSet<string> { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".midi", ".mid", ".unknown", ".dat" };
 
 			// Resimden videoya veya sese dönüşüm kontrolü
 			if (imageExtensions.Contains(sourceExt) && (videoExtensions.Contains(targetExt) || audioExtensions.Contains(targetExt)))
@@ -384,40 +387,6 @@ namespace Coverter
 		}
 
 
-
-
-		private void SetSaveDialogFilter(string sourceExtension)
-		{
-			if (videoExtensions.Contains(sourceExtension))
-			{
-				saveFileDialog1.Filter = "MP4 File (*.mp4)|*.mp4|" +
-										 "AVI File (*.avi)|*.avi|" +
-										 "MKV File (*.mkv)|*.mkv|" +
-										 // Diğer video formatları...
-										 "All Video Files|*.mp4;*.avi;*.mkv;...";
-			}
-			else if (imageExtensions.Contains(sourceExtension))
-			{
-				saveFileDialog1.Filter = "JPEG Image (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
-										 "PNG Image (*.png)|*.png|" +
-										 "GIF Image (*.gif)|*.gif|" +
-										 // Diğer resim formatları...
-										 "All Image Files|*.jpg;*.jpeg;*.png;*.gif;...";
-			}
-			else if (audioExtensions.Contains(sourceExtension))
-			{
-				saveFileDialog1.Filter = "MP3 Audio (*.mp3)|*.mp3|" +
-										 "WAV Audio (*.wav)|*.wav|" +
-										 "FLAC Audio (*.flac)|*.flac|" +
-										 // Diğer ses formatları...
-										 "All Audio Files|*.mp3;*.wav;*.flac;...";
-			}
-			else
-			{
-				saveFileDialog1.Filter = "All Files (*.*)|*.*";
-			}
-		}
-
 		private void btnConvert_Click(object sender, EventArgs e)
 		{
 			// Eğer draggedFiles listesi boşsa, uyarı mesajı göster
@@ -475,6 +444,35 @@ namespace Coverter
 			panel1.Controls.Clear();
 			label3.Visible = true; // Tüm ögeler temizlendiğinde label3'ü göster
 
+		}
+
+		private void Panel1_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			using (OpenFileDialog openFileDialog = new OpenFileDialog())
+			{
+				openFileDialog.Multiselect = true; // Birden fazla dosya seçmeye izin ver
+				openFileDialog.Title = "Dosyaları Seçin"; // Diyalog başlığı
+				openFileDialog.Filter = "Tüm Dosyalar (*.*)|*.*"; // Filtre
+
+				if (openFileDialog.ShowDialog() == DialogResult.OK)
+				{
+					// Seçilen dosyaları işle
+					foreach (string file in openFileDialog.FileNames)
+					{
+						// Dosyayı işleme veya listede gösterme
+						ProcessFile(file);
+					}
+				}
+			}
+		}
+
+		private void ProcessFile(string filePath)
+		{
+			// Dosya işleme mantığınızı buraya yazın
+			// Örneğin, dosyayı bir listeye ekleyebilirsiniz
+			draggedFiles.Add(filePath);
+			// Gerekli güncellemeleri ve gösterimleri yapın
+			DisplayFilesInPanelWithComboBoxAndProgressBar(new string[] { filePath });
 		}
 	}
 
